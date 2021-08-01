@@ -40,30 +40,40 @@ function App() {
   }
 
   function findItem(text) {
-    setSearch(text);
+    setSearch(text, phoneList);
     const filtered = phoneList.filter(item => item.name.includes(text) || item.telp.includes(text));
+    console.log(text, filtered);
     updateSearch(filtered);
   }
+
+  useEffect(() => {
+    findItem(searchText);
+  }, [searchText]);
 
   return (
     <div className="m-auto w-2/4 border-2 border-black">
       <header className="font-bold border-b-2 border-black text-center h-10">
         <h1>{title}</h1>
       </header>
-      <Searchbox onSearch={findItem} />
+      <Searchbox onSearch={setSearch} />
       {
         phoneList.length === 0 && <p>Click + to add some list!</p>
       }
       {
-        searchText.length > 0 && <div>Hasil Pencarian: <strong>{searchList.length === 0 ? "tidak ditemukan" : ""}</strong></div>
+        searchText.length > 0 &&
+        <div>Hasil Pencarian:
+          <strong>{searchList.length === 0 ? "tidak ditemukan" : ""}</strong>
+        </div>
       }
       <main>
         {
-          (searchText.length > 0 ? searchList : phoneList).map(item => <MenuItem
-            {...item} //  spread operator
-            key={item.id}
-            onDelete={removeItem}
-          />)
+          (searchText.length > 0 ? searchList : phoneList).map(item =>
+            <MenuItem
+              {...item} //  spread operator
+              key={item.id}
+              onDelete={removeItem}
+            />
+          )
         }
       </main>
       <div>

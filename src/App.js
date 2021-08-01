@@ -66,7 +66,7 @@ function App() {
   }
 
   function openDialog() {
-    setDialogState(true);
+    setDialogState(true); // set dialog to be true
   }
 
   function closeDialog() {

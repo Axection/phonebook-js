@@ -1,10 +1,12 @@
-const propsModel = {
-  name: "",
-  telp: "",
-  icon: "",
-  id: 0,
-  onDelete: () => {},
-}
+// const propsModel = {
+//   name: "",
+//   telp: "",
+//   icon: "",
+//   id: 0,
+//   tag: "family" || "relative" || "other",
+//   onDelete: () => {},
+//   onEdit: () => {},
+// }
 
 function MenuItem(props) {
   return (
@@ -15,6 +17,12 @@ function MenuItem(props) {
       <div className="flex-grow">
         <p>{props.name}</p>
         <p>{props.telp}</p>
+        <p>{props.tag}</p>
+      </div>
+      <div className="flex-grow-0 w-20 flex justify-center align-middle bg-yellow-400">
+        <button onClick={() => props.onEdit(props.id)}>
+          Edit
+        </button>
       </div>
       <div className="flex-grow-0 w-20 flex justify-center align-middle">
         <button onClick={() => props.onDelete(props.id)}>

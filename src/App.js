@@ -11,19 +11,53 @@ function App() {
   const [dialogFlag, setDialogState] = useState(false);
   const [searchList, updateSearch] = useState([]);
   const [searchText, setSearch] = useState("");
+  const [editData, setEditedData] = useState({});
+  const [activeFilter, setFilter] = useState("");
 
-  function addItem(name, telp) {
-    setList([
-      ...phoneList,
-      {
-        name,
-        telp,
-        icon: "/img/pol.png",
-        id: idGen,
-      }
-    ]);
-    setId(idGen + 1);
+  const filterList = [
+    {
+      id: 0,
+      title: "Semua",
+      filter: ""
+    }, {
+      id: 1,
+      title: "Keluarga",
+      filter: "family"
+    }, {
+      id: 2,
+      title: "Teman Dekat",
+      filter: "relative"
+    }, {
+      id: 3,
+      title: "Orang Lain",
+      filter: "other"
+    }
+  ];
+
+  function addOrUpdateItem(data) {
+    if(data.id !== undefined && data.id !== null) { // update
+      const dupedList = [...phoneList];
+      const editedData = dupedList.find(item => item.id === data.id);
+      Object.assign(editedData, data);
+      setList(dupedList);
+    } else { // add
+      setList([
+        ...phoneList,
+        {
+          ...data,
+          icon: "/img/pol.png",
+          id: idGen,
+        }
+      ]);
+      setId(idGen + 1);
+    }
     closeDialog();
+  }
+
+  function startEditItem(id) {
+    const currentList = phoneList.find(item => item.id === id);
+    setEditedData(currentList);
+    openDialog();
   }
 
   function removeItem(id) {
@@ -37,18 +71,21 @@ function App() {
 
   function closeDialog() {
     setDialogState(false);
+    setEditedData({});
   }
 
-  function findItem(text) {
+  function findItem(text, filter) {
     setSearch(text, phoneList);
-    const filtered = phoneList.filter(item => item.name.includes(text) || item.telp.includes(text));
+    const filtered = phoneList.filter(item =>
+      (item.tag === filter || filter === "") &&
+      (item.name.includes(text) || item.telp.includes(text)));
     console.log(text, filtered);
     updateSearch(filtered);
   }
 
   useEffect(() => {
-    findItem(searchText);
-  }, [searchText]);
+    findItem(searchText, activeFilter);
+  }, [searchText, activeFilter]);
 
   return (
     <div className="m-auto w-2/4 border-2 border-black">
@@ -56,6 +93,19 @@ function App() {
         <h1>{title}</h1>
       </header>
       <Searchbox onSearch={setSearch} />
+      <div className="flex justify-evenly">
+        {
+          filterList.map(({filter, title, id}) =>
+            <button
+              key={id}
+              className={`${activeFilter === filter && "bg-gray-600"} px-2 py-1 rounded-md bg-gray-400 text-white mx-2`}
+              onClick={() => setFilter(filter)}
+            >
+              {title}
+            </button>
+          )
+        }
+      </div>
       {
         phoneList.length === 0 && <p>Click + to add some list!</p>
       }
@@ -67,10 +117,11 @@ function App() {
       }
       <main>
         {
-          (searchText.length > 0 ? searchList : phoneList).map(item =>
+          ((searchText.length > 0 || activeFilter.length > 0) ? searchList : phoneList).map(item =>
             <MenuItem
               {...item} //  spread operator
               key={item.id}
+              onEdit={startEditItem}
               onDelete={removeItem}
             />
           )
@@ -82,7 +133,8 @@ function App() {
       {
         dialogFlag &&
         <Dialog
-          onConfirm={(name, telp) => addItem(name, telp)}
+          data={editData}
+          onConfirm={addOrUpdateItem}
           onCancel={closeDialog}
         />
       }
